@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package candidate;
+
+message Resume {
+  string name = 1;
+  string email = 2;
+  repeated string skills = 3;
+  int32 experience_years = 4;
+}
+
+message JobDescription {
+  string title = 1;
+  repeated string required_skills = 2;
+}
+
+message Score {
+  string candidate_name = 1;
+  float match_percentage = 2;
+}
+
+message CandidateScores {
+  repeated Score scores = 1;
+}
+
+service CandidateService {
+  rpc SubmitResume(Resume) returns (Score);
+  rpc GetTopCandidates(JobDescription) returns (CandidateScores);
+}

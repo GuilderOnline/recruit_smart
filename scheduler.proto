@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package scheduler;
+
+message InterviewRequest {
+  string candidate_email = 1;
+  repeated string available_times = 2;
+}
+
+message InterviewConfirmation {
+  string scheduled_time = 1;
+  string interview_id = 2;
+  string status = 3;
+}
+
+message CancelRequest {
+  string interview_id = 1;
+}
+
+message CancelConfirmation {
+  string status = 1;
+}
+
+service SchedulerService {
+  rpc ScheduleInterview(InterviewRequest) returns (InterviewConfirmation);
+  rpc CancelInterview(CancelRequest) returns (CancelConfirmation);
+}

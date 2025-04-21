@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package onboarding;
+
+message OnboardingRequest {
+  string candidate_email = 1;
+}
+
+message OnboardingStatus {
+  string status = 1;
+  repeated string completed_tasks = 2;
+  repeated string pending_tasks = 3;
+}
+
+service OnboardingService {
+  rpc InitiateOnboarding(OnboardingRequest) returns (OnboardingStatus);
+  rpc CheckStatus(OnboardingRequest) returns (OnboardingStatus);
+}
