@@ -32,7 +32,7 @@ function main() {
     GetTopCandidates: getTopCandidates,
   });
   server.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), () => {
-    console.log('🟢 CandidateService running at http://localhost:50051');
+    console.log('CandidateService running at http://localhost:50051');
     server.start();
   });
 }
