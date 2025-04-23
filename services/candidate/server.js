@@ -18,7 +18,6 @@ const proto = grpc.loadPackageDefinition(packageDefinition).candidate;
 function submitResume(call, callback) {
   const { name, experience_years, skills } = call.request;
 
-  console.log("📥 Resume received:", call.request);
 
   const score = (skills.length + experience_years) * 10;
 
