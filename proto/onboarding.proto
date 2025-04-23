@@ -7,12 +7,11 @@ message OnboardingRequest {
 }
 
 message OnboardingStatus {
-  string status = 1;
-  repeated string completed_tasks = 2;
-  repeated string pending_tasks = 3;
+  string candidate_email = 1;
+  string status = 2;
 }
 
 service OnboardingService {
-  rpc InitiateOnboarding(OnboardingRequest) returns (OnboardingStatus);
-  rpc CheckStatus(OnboardingRequest) returns (OnboardingStatus);
+  rpc StartOnboarding(OnboardingRequest) returns (OnboardingStatus);
+  rpc CheckOnboardingStatus(OnboardingRequest) returns (OnboardingStatus);
 }

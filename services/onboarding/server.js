@@ -2,57 +2,54 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 
+console.log("🚀 Onboarding server booted up");
+
 const PROTO_PATH = path.join(__dirname, '../../proto/onboarding.proto');
+const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+});
 
-const packageDefinition = protoLoader.loadSync(PROTO_PATH);
-const proto = grpc.loadPackageDefinition(packageDefinition).onboarding;
+const grpcObject = grpc.loadPackageDefinition(packageDefinition);
+const onboardingProto = grpcObject.onboarding;
 
-// Dummy in-memory onboarding tracker
-const onboardingDB = {};
+const onboardings = {}; // in-memory store
 
-function InitiateOnboarding(call, callback) {
+function StartOnboarding(call, callback) {
   const { candidate_email } = call.request;
+  onboardings[candidate_email] = 'in progress';
 
-  onboardingDB[candidate_email] = {
-    completed_tasks: [],
-    pending_tasks: ["Upload ID", "Sign NDA", "Read Handbook"],
-  };
-
+  console.log(`🟢 Starting onboarding for ${candidate_email}`);
   callback(null, {
-    status: "initiated",
-    completed_tasks: [],
-    pending_tasks: onboardingDB[candidate_email].pending_tasks,
+    candidate_email,
+    status: 'in progress',
   });
 }
 
-function CheckStatus(call, callback) {
+function CheckOnboardingStatus(call, callback) {
   const { candidate_email } = call.request;
+  const status = onboardings[candidate_email] || 'not started';
 
-  const data = onboardingDB[candidate_email];
-
-  if (!data) {
-    return callback(null, {
-      status: "not found",
-      completed_tasks: [],
-      pending_tasks: [],
-    });
-  }
-
+  console.log(`📍 Checking status for ${candidate_email}: ${status}`);
   callback(null, {
-    status: "in progress",
-    completed_tasks: data.completed_tasks,
-    pending_tasks: data.pending_tasks,
+    candidate_email,
+    status,
   });
 }
 
 function main() {
+  console.log("✅ Registering onboarding service...");
+
   const server = new grpc.Server();
-  server.addService(proto.OnboardingService.service, {
-    InitiateOnboarding,
-    CheckStatus,
+  server.addService(onboardingProto.OnboardingService.service, {
+    StartOnboarding,
+    CheckOnboardingStatus,
   });
 
-  server.bindAsync('0.0.0.0:50053', grpc.ServerCredentials.createInsecure(), () => {
+  server.bindAsync("0.0.0.0:50053", grpc.ServerCredentials.createInsecure(), () => {
     console.log("🟢 OnboardingService running at http://localhost:50053");
   });
 }
