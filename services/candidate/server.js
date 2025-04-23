@@ -1,10 +1,11 @@
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
+const { register } = require('../../RegistryClient');
 
+// ✅ Load the candidate.proto definition
 const PROTO_PATH = path.join(__dirname, '../../proto/candidate.proto');
 
-// Load the proto file
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
   longs: String,
@@ -12,44 +13,45 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   defaults: true,
   oneofs: true,
 });
-const proto = grpc.loadPackageDefinition(packageDefinition).candidate;
 
-// Define the SubmitResume RPC logic
-function submitResume(call, callback) {
+const grpcObject = grpc.loadPackageDefinition(packageDefinition);
+const candidateProto = grpcObject.candidate; // 👈 Make sure this matches package name in .proto
+
+// ✅ Dummy logic for SubmitResume and GetDummyCandidates
+function SubmitResume(call, callback) {
   const { name, experience_years, skills } = call.request;
-
-
   const score = (skills.length + experience_years) * 10;
-
   callback(null, {
     candidate_name: name,
     match_percentage: score,
   });
 }
 
-// Define the GetTopCandidates RPC logic
-function getTopCandidates(call, callback) {
-  const { required_skills } = call.request;
-
-  const dummyScores = required_skills.map((skill, index) => ({
-    candidate_name: `Candidate ${index + 1}`,
-    match_percentage: Math.random() * 100,
-  }));
-
-  callback(null, { scores: dummyScores });
+function GetDummyCandidates(call, callback) {
+  callback(null, {
+    candidates: [
+      { name: "Alice", match_percentage: 80 },
+      { name: "Bob", match_percentage: 65 },
+    ],
+  });
 }
 
-// Start the server
+// ✅ Start the gRPC server and register with the registry
 function main() {
   const server = new grpc.Server();
-
-  server.addService(proto.CandidateService.service, {
-    SubmitResume: submitResume,
-    GetTopCandidates: getTopCandidates,
+  server.addService(candidateProto.CandidateService.service, {
+    SubmitResume,
+    GetDummyCandidates,
   });
 
-  server.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), () => {
-    console.log('🟢 CandidateService running at http://localhost:50051');
+  const address = 'localhost:50051';
+
+  register('candidate', address)
+    .then(() => console.log("✅ CandidateService registered"))
+    .catch((err) => console.error("❌ Failed to register CandidateService:", err.message));
+
+  server.bindAsync(address, grpc.ServerCredentials.createInsecure(), () => {
+    console.log(`🟢 CandidateService running at http://${address}`);
   });
 }
 

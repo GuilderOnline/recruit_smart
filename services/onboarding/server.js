@@ -1,3 +1,4 @@
+const { register } = require('../../RegistryClient');
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
@@ -41,16 +42,19 @@ function CheckOnboardingStatus(call, callback) {
 }
 
 function main() {
-  console.log("✅ Registering onboarding service...");
-
   const server = new grpc.Server();
   server.addService(onboardingProto.OnboardingService.service, {
     StartOnboarding,
     CheckOnboardingStatus,
   });
 
-  server.bindAsync("0.0.0.0:50053", grpc.ServerCredentials.createInsecure(), () => {
-    console.log("🟢 OnboardingService running at http://localhost:50053");
+  const address = 'localhost:50053';
+  register('onboarding', address)
+    .then(() => console.log("✅ OnboardingService registered"))
+    .catch((err) => console.error("❌ Failed to register OnboardingService:", err.message));
+
+  server.bindAsync(address, grpc.ServerCredentials.createInsecure(), () => {
+    console.log(`🟢 OnboardingService running at http://${address}`);
   });
 }
 
