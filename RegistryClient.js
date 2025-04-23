@@ -36,8 +36,32 @@ function lookup(service_name) {
     });
   });
 }
+function registerWithRegistry(serviceName, serviceAddress) {
+  const registryProtoPath = path.join(__dirname, 'proto/registry.proto');
+  const registryDef = protoLoader.loadSync(registryProtoPath, {
+    keepCase: true,
+    longs: String,
+    enums: String,
+    defaults: true,
+    oneofs: true,
+  });
+  const registryObj = grpc.loadPackageDefinition(registryDef);
+  const registryClient = new registryObj.registry.RegistryService(
+    'localhost:5000',
+    grpc.credentials.createInsecure()
+  );
+
+  registryClient.Register({ service_name: serviceName, address: serviceAddress }, (err, res) => {
+    if (err) {
+      console.error(`❌ Failed to register "${serviceName}":`, err.message);
+    } else {
+      console.log(`📡 Registered "${serviceName}" at ${serviceAddress}`);
+    }
+  });
+}
+
 
 module.exports = {
-  register,
   lookup,
+  registerWithRegistry,
 };
