@@ -1,6 +1,12 @@
-const grpc = require('@grpc/grpc-js');
-const protoLoader = require('@grpc/proto-loader');
-const path = require('path');
+import grpc from '@grpc/grpc-js';
+import protoLoader  from '@grpc/proto-loader';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// 👇 Fix for __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const PROTO_PATH = path.join(__dirname, 'proto/candidate.proto');
 
@@ -25,9 +31,10 @@ const resume = {
   skills: ["Node.js", "JavaScript", "gRPC"],
   experience_years: 3,
 };
-
+const metadata = new grpc.Metadata();
+metadata.set('api-key', 'niall0000'); // Must match server key
 // Call the gRPC service
-client.SubmitResume(resume, (err, response) => {
+client.SubmitResume(resume, metadata, (err, response) => {
   if (err) {
     console.error("❌ Error calling SubmitResume:", err);
     return;

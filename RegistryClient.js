@@ -1,7 +1,13 @@
 // RegistryClient.js
-const grpc = require('@grpc/grpc-js');
-const protoLoader = require('@grpc/proto-loader');
-const path = require('path');
+import grpc from '@grpc/grpc-js';
+import protoLoader from '@grpc/proto-loader';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Resolve __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const REGISTRY_PROTO_PATH = path.join(__dirname, 'proto/registry.proto');
 
@@ -36,22 +42,9 @@ function lookup(service_name) {
     });
   });
 }
-function registerWithRegistry(serviceName, serviceAddress) {
-  const registryProtoPath = path.join(__dirname, 'proto/registry.proto');
-  const registryDef = protoLoader.loadSync(registryProtoPath, {
-    keepCase: true,
-    longs: String,
-    enums: String,
-    defaults: true,
-    oneofs: true,
-  });
-  const registryObj = grpc.loadPackageDefinition(registryDef);
-  const registryClient = new registryObj.registry.RegistryService(
-    'localhost:5000',
-    grpc.credentials.createInsecure()
-  );
 
-  registryClient.Register({ service_name: serviceName, address: serviceAddress }, (err, res) => {
+function registerWithRegistry(serviceName, serviceAddress) {
+  client.Register({ service_name: serviceName, address: serviceAddress }, (err, res) => {
     if (err) {
       console.error(`❌ Failed to register "${serviceName}":`, err.message);
     } else {
@@ -60,8 +53,5 @@ function registerWithRegistry(serviceName, serviceAddress) {
   });
 }
 
-
-module.exports = {
-  lookup,
-  registerWithRegistry,
-};
+// ✅ Export using ES Module syntax
+export { register, lookup, registerWithRegistry };

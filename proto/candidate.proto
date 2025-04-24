@@ -22,8 +22,31 @@ message Score {
 message CandidateScores {
   repeated Score scores = 1;
 }
+// Request message for server streaming
+message MatchRequest {
+  string skill = 1;
+}
+//Existing Candidate message for server streaming
+message Candidate {
+  string name = 1;
+  repeated string skills = 2;
+  int32 experience_years = 3;
+}
+
+// for Client streaming
+message UploadSummary {
+  int32 total_received = 1;
+  string message = 2;
+}
+
+
 
 service CandidateService {
   rpc SubmitResume(Resume) returns (Score);
   rpc GetTopCandidates(JobDescription) returns (CandidateScores);
+  
+  // Server Streaming method
+  rpc StreamCandidateMatches(MatchRequest) returns (stream Candidate);
+  // Client Streaming Methos
+rpc UploadResumes(stream Resume) returns (UploadSummary);
 }
