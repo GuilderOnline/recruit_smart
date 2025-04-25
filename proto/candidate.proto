@@ -39,6 +39,11 @@ message UploadSummary {
   string message = 2;
 }
 
+// for Bi-directional
+message ChatMessage {
+  string sender = 1;
+  string message = 2;
+}
 
 
 service CandidateService {
@@ -48,5 +53,7 @@ service CandidateService {
   // Server Streaming method
   rpc StreamCandidateMatches(MatchRequest) returns (stream Candidate);
   // Client Streaming Methos
-rpc UploadResumes(stream Resume) returns (UploadSummary);
+  rpc UploadResumes(stream Resume) returns (UploadSummary);
+  // B-directional
+  rpc Chat(stream ChatMessage) returns (stream ChatMessage);
 }

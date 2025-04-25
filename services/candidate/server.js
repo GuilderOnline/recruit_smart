@@ -122,6 +122,28 @@ function UploadResumes(call, callback) {
     console.error("❌ Client stream error:", err);
   });
 }
+function Chat(call) {
+  console.log("🔁 Bi-directional chat started");
+
+  call.on('data', (msg) => {
+    console.log(`💬 ${msg.sender}: ${msg.message}`);
+
+    // Echo the message back (for demo)
+    call.write({
+      sender: "Server",
+      message: `Received: ${msg.message}`
+    });
+  });
+
+  call.on('end', () => {
+    console.log("📴 Chat ended");
+    call.end();
+  });
+
+  call.on('error', (err) => {
+    console.error("❌ Chat stream error:", err);
+  });
+}
 
 // Start gRPC server and register service
 function main() {
@@ -131,6 +153,7 @@ function main() {
     GetDummyCandidates,
     StreamCandidateMatches,
     UploadResumes,
+    Chat,
   });
 
   const address = 'localhost:50051';
