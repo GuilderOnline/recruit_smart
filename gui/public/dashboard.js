@@ -63,14 +63,55 @@ async function getTopCandidates() {
     console.error("❌ Error getting candidates:", error);
   }
 }
-
-
-function scheduleInterview() {
+async function scheduleInterview() {
   console.log("📤 Scheduling interview...");
+
+  const email = document.getElementById("schedule-email").value;
+  const timesRaw = document.getElementById("schedule-times").value;
+  const available_times = timesRaw.split(",").map(t => t.trim());
+
+  try {
+    const response = await fetch("http://localhost:8080/schedule-interview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ candidate_email: email, available_times })
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text);
+    }
+
+    const data = await response.json();
+    console.log("✅ Interview scheduled:", data);
+    alert(`Interview scheduled at ${data.scheduled_time} with ID ${data.interview_id}`);
+  } catch (error) {
+    console.error("❌ Error scheduling interview:", error);
+  }
 }
 
-function cancelInterview() {
+async function cancelInterview() {
   console.log("📤 Cancelling interview...");
+
+  const interviewId = document.getElementById("interviewId").value;
+
+  const request = { interview_id: interviewId };
+
+  try {
+    const response = await fetch("http://localhost:8080/cancel-interview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const data = await response.json();
+    console.log("✅ Interview cancelled:", data);
+    alert(`Interview Status: ${data.status}`);
+  } catch (err) {
+    console.error("❌ Error cancelling interview:", err);
+  }
 }
 
 function startOnboarding() {

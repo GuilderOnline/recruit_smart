@@ -64,6 +64,52 @@ app.post('/submit-resume', (req, res) => {
     res.json(response);
   });
 });
+// Scheduler proto
+const schedulerProtoPath = path.join(__dirname, '../proto/scheduler.proto');
+const schedulerDef = protoLoader.loadSync(schedulerProtoPath, {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+});
+const grpcScheduler = grpc.loadPackageDefinition(schedulerDef);
+const schedulerClient = new grpcScheduler.scheduler.SchedulerService(
+  'localhost:50052',
+  grpc.credentials.createInsecure()
+);
+
+// POST: Schedule Interview
+app.post('/schedule-interview', (req, res) => {
+  const { candidate_email, available_times } = req.body;
+
+  const metadata = new grpc.Metadata();
+  metadata.set('api-key', 'niall0000');
+
+  schedulerClient.ScheduleInterview({ candidate_email, available_times }, metadata, (err, response) => {
+    if (err) {
+      console.error("❌ gRPC Error:", err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(response);
+  });
+});
+
+
+// POST: Cancel Interview
+app.post('/cancel-interview', (req, res) => {
+  const metadata = new grpc.Metadata();
+  metadata.set('api-key', 'niall0000');
+
+  schedulerClient.CancelInterview(req.body, metadata, (err, response) => {
+    if (err) {
+      console.error("❌ Cancel Interview Error:", err.message);
+      return res.status(500).send("Failed to cancel interview");
+    }
+    res.json(response);
+  });
+});
+
 
 // ⬇️ Start server
 app.listen(PORT, () => {

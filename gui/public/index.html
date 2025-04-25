@@ -42,9 +42,26 @@
 
   <div id="scheduler" class="tab-content" style="display:none">
     <h2>Scheduler Service</h2>
-    <button onclick="scheduleInterview()">Schedule Interview</button>
-    <button onclick="cancelInterview()">Cancel Interview</button>
+
+    <div>
+      <label>Email:</label><br />
+      <input type="email" id="schedule-email" placeholder="jane@example.com" /><br /><br />
+
+      <label>Available Times (comma-separated):</label><br />
+      <input type="text" id="schedule-times" placeholder="Monday 10am, Tuesday 2pm" /><br /><br />
+
+      <button onclick="scheduleInterview()">Schedule Interview</button>
+    </div>
+
+    <hr />
+
+    <div>
+      <label>Interview ID:</label><br />
+      <input type="text" id="interviewId" placeholder="INT-1234" /><br /><br />
+      <button onclick="cancelInterview()">Cancel Interview</button>
+    </div>
   </div>
+
 
   <div id="onboarding" class="tab-content" style="display:none">
     <h2>Onboarding Service</h2>
