@@ -33,15 +33,20 @@ const candidateClient = new grpcObject.candidate.CandidateService(
   'localhost:50051',
   grpc.credentials.createInsecure()
 );
-app.get('/get-dummy-candidates', (req, res) => {
-  candidateClient.GetDummyCandidates({ job_title: "Software Engineer" }, (err, response) => {
+// ⬇️ New Route: Get Top Candidates
+app.get('/get-top-candidates', (req, res) => {
+  const metadata = new grpc.Metadata();
+  metadata.set('api-key', 'niall0000'); // Must match auth.js
+
+  candidateClient.GetTopCandidates({ title: "Software Engineer" }, metadata, (err, response) => {
     if (err) {
       console.error("❌ gRPC Error:", err.message);
-      return res.status(500).send("Failed to get candidates");
+      return res.status(500).send("Failed to get top candidates");
     }
     res.json(response);
   });
 });
+
 
 app.post('/submit-resume', (req, res) => {
   const resume = req.body;

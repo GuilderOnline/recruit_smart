@@ -78,15 +78,21 @@ async function SubmitResume(call, callback) {
   });
 }
 
+
 // GetDummyCandidates with authentication
-function GetDummyCandidates(call, callback) {
+function GetTopCandidates(call, callback) {
   authenticate(call, callback, () => {
-    const { job_title } = call.request;
-    const dummyCandidates = [
+    const { title } = call.request; // title (because your proto uses JobDescription.title)
+    
+    const topCandidates = [
       { name: "Alice", skills: ["JS", "React"], experience_years: 2 },
       { name: "Bob", skills: ["Node", "MongoDB"], experience_years: 3 },
     ];
-    callback(null, { candidates: dummyCandidates });
+    
+    callback(null, { scores: topCandidates.map(c => ({
+      candidate_name: c.name,
+      match_percentage: (c.skills.length + c.experience_years) * 10,
+    }))});
   });
 }
 function StreamCandidateMatches(call) {
@@ -150,7 +156,7 @@ function main() {
   const server = new grpc.Server();
   server.addService(candidateProto.CandidateService.service, {
     SubmitResume,
-    GetDummyCandidates,
+    GetTopCandidates,
     StreamCandidateMatches,
     UploadResumes,
     Chat,

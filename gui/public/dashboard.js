@@ -34,18 +34,36 @@ async function submitResume() {
 }
 
 
-async function getDummyCandidates() {
+async function getTopCandidates() {
   console.log("📤 Getting dummy candidates...");
-
   try {
-    const response = await fetch("http://localhost:8080/get-dummy-candidates");
+    const response = await fetch('http://localhost:8080/get-top-candidates');
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
     const data = await response.json();
-    console.log("✅ Dummy candidates:", data);
-    alert("Check the console for dummy candidates!");
-  } catch (err) {
-    console.error("❌ Error getting dummy candidates:", err);
+    console.log("✅ Top Candidates:", data);
+
+    const list = document.getElementById("top-candidates-list");
+    list.innerHTML = ""; // Clear previous list
+
+    if (Array.isArray(data?.scores) && data.scores.length > 0) {
+      data.scores.forEach(candidate => {
+        const item = document.createElement("li");
+        item.textContent = `👤 ${candidate.candidate_name} - ${candidate.match_percentage.toFixed(1)}% match`;
+        list.appendChild(item);
+      });
+    } else {
+      const item = document.createElement("li");
+      item.textContent = "⚠️ No top candidates found.";
+      list.appendChild(item);
+    }
+  } catch (error) {
+    console.error("❌ Error getting candidates:", error);
   }
 }
+
 
 function scheduleInterview() {
   console.log("📤 Scheduling interview...");
