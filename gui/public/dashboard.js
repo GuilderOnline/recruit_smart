@@ -114,10 +114,47 @@ async function cancelInterview() {
   }
 }
 
-function startOnboarding() {
+async function startOnboarding() {
   console.log("📤 Starting onboarding...");
+
+  const email = document.getElementById("onboarding-email").value;
+  
+  try {
+    const response = await fetch("http://localhost:8080/start-onboarding", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ candidate_email: email })
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const data = await response.json();
+    console.log("✅ Onboarding started:", data);
+    alert(`Onboarding for ${data.candidate_email} is ${data.status}`);
+  } catch (error) {
+    console.error("❌ Error starting onboarding:", error);
+  }
 }
 
-function checkOnboarding() {
+
+async function checkOnboarding() {
   console.log("📤 Checking onboarding status...");
+
+  const email = document.getElementById("schedule-email").value;
+
+  try {
+    const response = await fetch("http://localhost:8080/check-onboarding", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ candidate_email: email }),
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const data = await response.json();
+    console.log("📍 Onboarding status:", data);
+    alert(`Status for ${data.candidate_email}: ${data.status}`);
+  } catch (err) {
+    console.error("❌ Error checking onboarding status:", err);
+  }
 }

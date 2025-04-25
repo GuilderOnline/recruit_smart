@@ -109,6 +109,48 @@ app.post('/cancel-interview', (req, res) => {
     res.json(response);
   });
 });
+// 🔄 Load onboarding.proto
+const onboardingProtoPath = path.join(__dirname, '../proto/onboarding.proto');
+const onboardingPackageDef = protoLoader.loadSync(onboardingProtoPath, {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+});
+const onboardingGrpcObj = grpc.loadPackageDefinition(onboardingPackageDef);
+const onboardingClient = new onboardingGrpcObj.onboarding.OnboardingService(
+  'localhost:50053',
+  grpc.credentials.createInsecure()
+);
+
+// POST /start-onboarding
+app.post('/start-onboarding', (req, res) => {
+  const metadata = new grpc.Metadata();
+  metadata.set('api-key', 'niall0000');
+
+  onboardingClient.StartOnboarding(req.body, metadata, (err, response) => {
+    if (err) {
+      console.error("❌ StartOnboarding error:", err.message);
+      return res.status(500).send("Failed to start onboarding");
+    }
+    res.json(response);
+  });
+});
+
+// POST /check-onboarding
+app.post('/check-onboarding', (req, res) => {
+  const metadata = new grpc.Metadata();
+  metadata.set('api-key', 'niall0000');
+
+  onboardingClient.CheckOnboardingStatus(req.body, metadata, (err, response) => {
+    if (err) {
+      console.error("❌ CheckOnboardingStatus error:", err.message);
+      return res.status(500).send("Failed to check onboarding status");
+    }
+    res.json(response);
+  });
+});
 
 
 // ⬇️ Start server
