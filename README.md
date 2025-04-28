@@ -41,8 +41,30 @@ Each service has a `.proto` file and uses different types of gRPC invocations:
   - `CheckOnboardingStatus(OnboardingRequest) returns (OnboardingStatus)` (Unary RPC)
 
 ---
-## Terminal -> Recruit_Smart -> node gui/server.js & go to http://localhost:8080/ in the browser
-## Chat client (node chatClient.js) must be run manually after services are running.
+## Start Up Instructions
+1. Start the RegistryService
+node services/registry/server.js
+
+2. Start the SchedulerService
+node services/scheduler/server.js
+
+3. Start the CandidateService
+node services/candidate/server.js
+
+4. Start the OnboardingService
+node services/onboarding/server.js
+
+5. Start the GUI Backend (Node.js Express server)
+node gui/server.js
+
+6. Open your browser and visit the GUI
+http://localhost:8080
+
+This will load the Recruit_Smart Dashboard (Candidate, Scheduler, Onboarding tabs).
+
+Optional (if you want to test the Chat client manually via terminal)
+(Simulates standalone bi-directional streaming without GUI)
+node chatClient.js.
 
 ## Message Formats
 
